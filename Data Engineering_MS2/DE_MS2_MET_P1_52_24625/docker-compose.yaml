@@ -1,0 +1,70 @@
+version: "3.9"
+services:
+  main:
+    build: .
+    container_name: main
+    volumes:
+      - ./app/src:/app/src
+      - ./app/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+        pgdatabase:
+          condition: service_healthy
+    restart: "on-failure"
+
+  pgdatabase:
+    image: postgres:13
+    container_name: pgdatabase
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: MS2_MET_P1_52_24625
+    ports:
+      - 5432:5432
+    volumes:
+      - ./app/volumes/data_postgres:/var/lib/postgresql/data 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d MS2_MET_P1_52_24625"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root@root.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - 8090:80
+    depends_on:
+      - pgdatabase
+    restart: on-failure
+
+    volumes:
+      - ./app/volumes/pgadmin_data:/var/lib/pgadmin
+
+  zookeeper:
+      image: confluentinc/cp-zookeeper:7.4.0
+      container_name: zookeeper
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
+      ports:
+        - "2181:2181"
+
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "de_ms2_52_24625:1:1" # topic:partitions:replication-factor
+    depends_on:
+      - zookeeper

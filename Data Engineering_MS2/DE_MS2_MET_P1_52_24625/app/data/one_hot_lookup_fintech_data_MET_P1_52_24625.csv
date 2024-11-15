@@ -1,0 +1,21 @@
+column,name_encoded_column
+home_ownership,home_ownership_ANY
+home_ownership,home_ownership_MORTGAGE
+home_ownership,home_ownership_OTHER
+home_ownership,home_ownership_OWN
+home_ownership,home_ownership_RENT
+verification_status,verification_status_Not Verified
+verification_status,verification_status_Source Verified
+verification_status,verification_status_Verified
+term,term_ 36 months
+term,term_ 60 months
+loan_status,loan_status_Charged Off
+loan_status,loan_status_Current
+loan_status,loan_status_Default
+loan_status,loan_status_Fully Paid
+loan_status,loan_status_In Grace Period
+loan_status,loan_status_Late (16-30 days)
+loan_status,loan_status_Late (31-120 days)
+type,type_direct_pay
+type,type_individual
+type,type_joint

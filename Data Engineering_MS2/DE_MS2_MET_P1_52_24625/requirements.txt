@@ -1,0 +1,10 @@
+numpy
+pandas
+scikit-learn
+requests
+beautifulsoup4
+PyYAML
+SQLAlchemy
+psycopg2-binary
+kafka-python
+docker
