@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+  pgdatabase:
+    image: postgres:13
+    container_name: pgdatabase
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: MS3_MET_P1_52_24625
+    ports:
+      - 5432:5432
+    volumes:
+      - ./volumes/data_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d MS3_MET_P1_52_24625"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - spark_pg_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root@root.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - 8090:80
+    depends_on:
+      - pgdatabase
+    restart: on-failure
+    volumes:
+      - ./volumes/pgadmin_data:/var/lib/pgadmin
+    networks:
+      - spark_pg_network
+
+  pyspark:
+    image: jupyter/all-spark-notebook
+    container_name: pyspark
+    ports:
+      - 8888:8888
+    volumes:
+      - F:/Engineering/Semester 9/(CSEN1095) Data Engineering/Data Engineering Project/Data Engineering_MS3/data:/data
+      - F:/Engineering/Semester 9/(CSEN1095) Data Engineering/Data Engineering Project/Data Engineering_MS3/jars:/opt/spark/jars  # Mount the folder containing JDBC driver      - ./jars:/opt/spark/jars  # Mount the folder containing JDBC driver
+    networks:
+      - spark_pg_network
+    environment:
+      - SPARK_CLASSPATH=/opt/spark/jars/postgresql-42.7.4.jar
+    depends_on:
+      - pgdatabase
+
+networks:
+  spark_pg_network:
+    driver: bridge
+
